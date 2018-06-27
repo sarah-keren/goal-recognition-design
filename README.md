@@ -1,1 +1,1 @@
-# goal-recognition-design
+# goal_recognition_design
