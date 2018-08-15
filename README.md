@@ -1,3 +1,0 @@
-# goal-recognition-design
-
-
