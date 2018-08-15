@@ -1,0 +1,6 @@
+(move cdr harmony destiny)
+(move cdr destiny unity)
+(take headligth unity cdr)
+(take tool-box unity cdr)
+(move cdr unity destiny)
+(inspect-component breathing-equipment fdss destiny cdr)

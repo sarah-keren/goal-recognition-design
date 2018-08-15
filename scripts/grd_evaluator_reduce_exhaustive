@@ -1,0 +1,17 @@
+#!/bin/sh
+# run chmod u+x program_name to make the script executable 
+# $1 - domain file name
+# $2 - template file name
+# $3 - hyps_file_name
+# $4 - calculation_method (LatestSplit, LatestTimed etc)
+# $5 - design_budget_array
+# $6 - observability file name (NA if not aplicable)
+# $7 - agent sub optimal budget array (NA if not aplicable)
+# $8 - delete old log files (otherwise append results)
+# $9 - combs examined (e.g. all_pairs that examines each pair separetly, max that takes the maximal over all pairs)
+# $10 - action token file name
+dir=$(dirname $(readlink -f "$0"))
+cur_dir=${PWD}
+
+echo "Script parapms: python3 ./src/grd_evaluator.py WcdReduce -o $1 -p $2 -y $3 -c $4 -g $5 -b $6 -u $7 -f $8 -v $9 -a ${10}	"
+python3 ./src/grd_evaluator.py -o $1 -p $2 -y $3 -c WcdReduceExhaustive-$4 -g $5 -b $6 -u $7 -f $8 -v $9 -a ${10}

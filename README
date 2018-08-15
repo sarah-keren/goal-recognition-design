@@ -1,0 +1,134 @@
+
+Objective:
+=========
+
+Goal recognition design (GRD) is the task of redesigning environments in order to facilitate online goal recognition. As such, while goal recognition tools are typically aimed at efficiently analyzing online observations of agents (human or automated) in order to infer their objective, GRD focuses on manipulating the environment in which agents act to guarantee early recognition. 
+
+In a nutshell, given a model of a domain and a set of possible goals, a solution to a GRD problem determines: (1) to what extent do actions, performed by an agent within the model, reveal the agent’s objective? and (2) what is the best way to modify the model so that the objective of an agent is revealed as early as possible? GRD answers these questions by offering a solution for assessing and minimizing the maximal progress of an agent in the model before its goal is revealed. This approach is relevant to any domain for which quickly performing goal recognition is essential and in which the model design can be controlled. Applications include intrusion detection, assisted cognition, computer games, and human-robot collaboration.
+
+To learn more about GRD see our list of publications at : http://sarahkeren.wixsite.com/sarahkeren-academics/publications
+
+
+Code structure:
+==============
+
+The distributed code contains 3 parts:
+
+	src- the python3 code that supports GRD for deterministic settings described using PDDL 
+
+	scripts- the scripts used to run the GRD code 
+
+	benchmarks - benchmarks adopted from Ramirez & Geffner, Pereira et al. (2017), and E-Mart ́ın, RMoreno, & Smith 2015 to evaluate our GRD framework.
+
+Things to notice:
+
+	- src includes a generator for creating GRD problems for PDDL-based goal recognition domains. 
+	- src/3rdparty include libraries necessary to run the GRD code.
+	  This includes:
+		- pyperplan_s - a variation of the pyperplan (https://bitbucket.org/malte/pyperplan) used to parse the pddl files 
+		- downward - the Fast Downward planner by Malte Helmert. The code is not included in the code due to its size and needs to be installed from 
+				http://www.fast-downward.org/HomePage. Note that if you want to use a different planner you would only have to change grd_planning.py 					file to support the commands of your planner.
+
+	- the current code supports four forms of design (defined under modification_combination in grd_wcd_reduction):
+		- action removal (removed_actions_list) - actions that are dissallowed
+		- sensor placement (observed_actions_list) - actions that become observable
+		- sensor refinement (sensor_refined_actions_list) - actions that are assigned a unique token
+		- action conditioning (constraints_list) - imposes an order between a pairs of actions
+
+	See our ICAPS'18 paper for a formal definition of each modificaiton type.
+
+
+
+
+Per-file documentation (src):
+=============================
+
+-grd_generator.py - used to generate grd problem for pddl based goal recognition problems
+
+-grd_defs - the constants used in the code
+
+-grd_planning_converter.py - converts the grd problem into planning problems using the LatestSplit, LatestTimed, LatestExpose and CommonDeclare compilations 
+Note that the converter is highly sensitive to the format used in the supplied benchmarks. 
+
+-grd_evaluator.py - the main file used to process and execute the grd commands. Includes the calc_wcd_multiple_hyps method (for wcd calculation)
+
+-grd_utils.py - various helper functions
+
+-grd_wcd_reduction.py - includes the reduce_wcd method used to find the optimal modification to minimize wcd given a limited design budget
+
+-grd_task.py - the grd class that can initialized using each of the files or a tarred folder
+
+-runninng_asp.py - the code used to run and compare the grd code to the asp code by son et. al. 2016, in the case of fully observable optimal agents 
+
+-grd_options.py - the command line options for the grd_evaluator file 
+
+-grd_planning_gen.py - generator of pddl planning files (used by grd_planning_converter)
+
+-grd_planning.py - perform planing using FastDownward (can be modified to support other planners)
+
+-grd_exploration.py - used by calc_wcd_bfs to explore the grd domain
+
+View the specific files for in-depth documantation. 
+
+
+Running the code
+================
+
+The GRD incldues two main tasks - wcd caluclation and wcd reduction. 
+
+For wcd calculation using the PrunedReduce approach (pruning modifications that do not affect the wcd-paths) use grd_evaluator_reduce. For an exhustive explorarion use 
+grd_evaluator_reduce_exhaustive. See our ICAPS 18 paper, for a description of our pruning approach and to find out the conditions under which our pruning technique is safe.
+
+The script parameters are described within each file.
+
+In general for running grd you need to specify the following (! full paths need to be specified for files !):
+	- pddl domain file 
+	- template file (planning file without the goals)
+	- hyps file (the possible goals)
+	- observability file (if applicable) : for LatestExpore the non-obs.dat file specified the non-observable actions. For CommonDeclare, act-tok.dat specified the token emmited by each action.
+	- budget for reduction (see the different design options above). The budget can be a single number, describing an overall budget or a four tuple array (x:x:x:x) describing the budget of each modificaiton type.  
+
+
+
+For example:
+-------------
+
+./scripts/grd_evaluator_reduce /home/GoalRecognitionDesign/benchmarks/easy-grid/p01/domain.pddl /home/GoalRecognitionDesign/benchmarks/easy-grid/p01/template.pddl /home/GoalRecognitionDesign/benchmarks/easy-grid/p01/hyps.dat CommonDeclare 1:1:0:2 NA NA True all_pairs /home/GoalRecognitionDesign/benchmarks/easy-grid/p01/observability_files/0__2_1_POND__act-toks.dat
+
+Will reduce the wcd for the domain, template and hyps files found in /home/GoalRecognitionDesign/benchmarks/easy-grid/p01. The method for wcd calculation is CommonDeclare and the budget is 1 for action removal modifications, 1 for sensor placement modifications, 0 for sensor refinement modificaitons, and 2 for action conditioning modifications. The first NA is because the observability is defined by a token file and not an non-obs file and the second NA reflects that agents are optimal (otherwise an array of diversion bounds needs to be specified. For example: 3:2 will reflect a diversion budget of 3 and 2 to the first and second hyp in hyps, respectively). True means that old log files should be deleted. all_pairs means that a separate results is produced for each pair of hyps and finally, the path to the token file is given.
+
+Another example:
+----------------
+
+./scripts/grd_evaluator_reduce /home/GoalRecognitionDesign/benchmarks/iss-cad/p01/domain.pddl /home/GoalRecognitionDesign/benchmarks/iss-cad/p01/template.pddl /home/GoalRecognitionDesign/benchmarks/iss-cad/hyps.dat LatestSplit 1 NA 10 True max NA
+
+
+Will reduce the wcd for the domain, template and hyps files found in /home/GoalRecognitionDesign/benchmarks/easy-grid/p01. The method for wcd calculation is LatestSplit and the overall design budget is 1. The NA is because the observability files is not relevant to a fully observable setting. The array 10 reflects that agents to all goals have a 10 bound on diverting from optimal paths. True means that old log files should be deleted. max means that the one results is produced which is the max over all pairs and finally, NA means that the token file is not specified.
+
+
+
+Results Log
+===============
+
+When running the code, two folders are generated. 'gen_files' holds all the generated files, including the parsed planning files. 
+
+'log_files' holds the results files. 
+
+'grd_results.txt' holds the results generated by the requested command. The format is :
+
+Performing:: %s %s %s %s %s %s \n---------------------------\n"
+%(calc_methods,hyps_file_name,design_budget_array,sub_optimal_bound_array,observability_file_name,tokens_file_name)
+
+'%s;%s;%s;%s;%s;%s;%s;%s;%.2f;%s;%.2f;%s;%s;%s;%s;%s;%s;%s;%s\n'
+%(template_file_name,hyps_file_name,wcd_calc_method,design_budget_array_string_parsed,init_wcd,min_wcd,init_wcd_hyps, optimal_design_combination,wcd_calc_time,optimal_costs, cur_exec_time, explored_op_comb (the number of explored modifications sequences), total_num_of_nodes_explored, total_num_of_states_explored,reduction_per_budget_exhausted,NA,grd_test_task.observability_file_name,grd_test_task.action_tokens_file_name,grd_test_task.get_sub_optimal_bound_array_string)
+
+
+
+
+For reduction, 'grd_log_reduction.txt' holds all intermediate results achieved during design 
+
+string_to_print = '%s;%s;%s;%s;%s;%s;%s;%s;%.2f;%s;%.2f;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n'%(cur_grd_task.full_template_file_name,cur_grd_task.hyps_file_name,wcd_calc_method,budget_string,init_wcd,min_wcd,init_wcd_hyps, opt_op_comb.getString(),wcd_calc_time,optimal_costs, cur_exec_time, explored_op_comb, total_num_of_nodes_explored, total_num_of_states_explored,reduction_per_budget_exhausted,curResFindWcd.wcd_value,op_comb.getString(),design_budget_array_string,cur_grd_task.observability_file_name,cur_grd_task.action_tokens_file_name,cur_grd_task.get_sub_optimal_bound_array_string())
+
+
+
+

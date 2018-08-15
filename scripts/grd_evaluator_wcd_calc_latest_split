@@ -1,0 +1,9 @@
+#!/bin/sh
+# run chmod u+x program_name to make the script executable 
+# $1 - domain file name
+# $2 - template file name
+# $3 - hyps_file_name
+
+python3 ./src/grd_evaluator.py -o $1 -p $2 -y $3 -c LatestSplit
+
+

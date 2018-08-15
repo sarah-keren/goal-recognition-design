@@ -1,0 +1,8 @@
+(move cdr harmony destiny)
+(move cdr destiny unity)
+(take tool-box unity cdr)
+(take headligth unity cdr)
+(move cdr unity destiny)
+(move cdr destiny harmony)
+(move cdr harmony columbus)
+(inspect-component laptop pfs columbus cdr)

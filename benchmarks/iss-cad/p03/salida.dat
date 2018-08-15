@@ -1,0 +1,7 @@
+(move cdr harmony destiny)
+(power-off sensor fdss destiny cdr)
+(move cdr destiny unity)
+(take headligth unity cdr)
+(take tool-box unity cdr)
+(move cdr unity destiny)
+(inspect-component sensor fdss destiny cdr)

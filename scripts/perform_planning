@@ -1,0 +1,7 @@
+#!/bin/sh
+# run chmod u+x program_name to make the script executable 
+# destination folder is log_files folder
+# $1 - domain file (pddl)
+# $2 - problem file (pddl)
+dir=$(dirname $(readlink -f "$0"))
+python3 ./src/grd_planning.py $1 $2 
