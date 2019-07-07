@@ -69,6 +69,41 @@ class downward_command :
             --Search
            result is processed in gather_data
         """
+	#command
+        cmd_string_planner = '%s/fast-downward.py %s %s --search "astar(lmcut())"'%(os.path.abspath(grd_defs.downward_path), self.domain_file_name,self.problem_file_name)
+        search_log_file_name = os.path.abspath(os.path.join(grd_defs.log_files_dir,'Search_downward.log'))#%(self.noext_problem,int(time.time()))))
+
+
+        # Change working directory to the one in which all files are generated
+        cur_dir = os.getcwd()
+        os.chdir(self.destination_folder_name)
+	
+	
+        
+        #Search
+        self.log_file_name = search_log_file_name
+        self.log = grd_utils.Log(self.log_file_name)
+        self.signal, self.time = grd_utils.run( cmd_string_planner, self.max_time, self.max_mem, self.log ,verbose)
+        print("----------------------------------------------> Search performed with signal %s ,log file name is %s"%(self.signal,search_log_file_name))
+
+        if(self.signal != 0):
+            print("! ! ! signal is not 0 - it is %d"%self.signal)
+
+
+        os.chdir(cur_dir)
+
+        #process results
+        self.gather_data()
+        return self.signal
+
+
+    def execute_deprecated(self) :
+        """executing fast downward search command via 3 steps:
+            --Translate
+            --Preporocess
+            --Search
+           result is processed in gather_data
+        """
 	
 
         #commands

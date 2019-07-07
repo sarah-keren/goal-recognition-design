@@ -26,9 +26,9 @@ DELIMINATOR = ','
 
 #fast_downward
 if 'src' in os.getcwd():
-    downward_path = "./3rdparty/downward/src"
+    downward_path = "./3rdparty/downward"
 else:
-    downward_path = "./src/3rdparty/downward/src"
+    downward_path = "./src/3rdparty/downward"
 if "FD_HOME" in os.environ:
     downward_path = os.environ["FD_HOME"] + "/src"
 
