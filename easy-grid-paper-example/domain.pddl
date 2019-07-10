@@ -1,7 +1,5 @@
 ;; simple Grid-navigation
-
 (define (domain navigator)
-
 	(:requirements :strips :typing)
 	(:types place)
 	(:predicates
